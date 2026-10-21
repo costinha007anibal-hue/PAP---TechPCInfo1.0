@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TechPCInfo – Pesquisar / QR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="bg-slate-100">
+  <nav class="brand-gradient text-white px-4 py-3 flex items-center justify-between">
+    <a href="/dashboard.html" class="font-bold text-lg">← TechPCInfo</a>
+    <span class="text-sm opacity-90">Pesquisar / QR</span>
+  </nav>
+  <main class="max-w-lg mx-auto p-4 md:p-6 space-y-4">
+    <div class="card p-5">
+      <h1 class="font-bold text-slate-800 mb-3">Pesquisar equipamento</h1>
+      <input type="search" id="search" placeholder="Código, nome ou sala…"
+        class="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-600/40" />
+      <div id="results" class="mt-3 space-y-2"></div>
+    </div>
+    <div id="cameraSection" class="card p-5 camera-only-mobile">
+      <h2 class="font-bold text-slate-800 mb-1">Ler código QR com a câmara</h2>
+      <p class="text-sm text-slate-500 mb-3">Disponível neste dispositivo porque foi detetado como portátil com câmara. Use quando não tiver um leitor de QR físico.</p>
+      <div id="reader" class="overflow-hidden rounded-xl"></div>
+      <button id="btnStop" class="btn-ghost mt-3 text-sm hidden">Parar câmara</button>
+    </div>
+    <div id="desktopHint" class="card p-5 hidden">
+      <h2 class="font-bold text-slate-800 mb-1">Leitura por câmara</h2>
+      <p class="text-sm text-slate-600">A opção de câmara <strong>não aparece neste computador</strong>. Está disponível apenas em smartphones ou tablets com câmara, para quando não existir um scanner de QR físico.</p>
+      <p class="text-sm text-slate-500 mt-2">Abra esta página no telemóvel (mesma rede Wi‑Fi) para usar a câmara, ou digite o código / nome acima.</p>
+    </div>
+  </main>
+  <script src="/js/app.js"></script>
+  <script>
+    const session = TechPC.requireAuth();
+    if (!session) throw new Error("auth");
+    const mobile = TechPC.canUseCameraScan();
+    if (mobile) document.body.classList.add("is-mobile");
+    else document.getElementById("desktopHint").classList.remove("hidden");
+    let all = [];
+    TechPC.apiGet("/equipment").then((d) => { all = d; });
+    document.getElementById("search").addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const el = document.getElementById("results");
+      if (!q) { el.innerHTML = ""; return; }
+      const hits = all.filter((p) => [p.name, p.code, p.location].join(" ").toLowerCase().includes(q)).slice(0, 8);
+      el.innerHTML = hits.map((p) => `<a href="/pc-detail.html?id=${encodeURIComponent(p.code)}" class="block px-3 py-2 rounded-lg hover:bg-slate-50 border border-slate-100"><span class="font-medium">${TechPC.escapeHtml(p.code)}</span> – ${TechPC.escapeHtml(p.name)}</a>`).join("") || `<p class="text-sm text-slate-500">Sem resultados.</p>`;
+    });
+    if (mobile && typeof Html5Qrcode !== "undefined") {
+      const scanner = new Html5Qrcode("reader");
+      const btnStop = document.getElementById("btnStop");
+      function onScan(decoded) {
+        try {
+          const url = new URL(decoded);
+          const parts = url.pathname.split("/").filter(Boolean);
+          const code = parts[parts.length - 1];
+          if (code) { scanner.stop().catch(() => {}); location.href = "/pc-detail.html?id=" + encodeURIComponent(code); }
+        } catch {
+          if (decoded) { scanner.stop().catch(() => {}); location.href = "/pc-detail.html?id=" + encodeURIComponent(decoded.trim()); }
+        }
+      }
+      scanner.start({ facingMode: "environment" }, { fps: 8, qrbox: { width: 220, height: 220 } }, onScan, () => {})
+        .then(() => btnStop.classList.remove("hidden"))
+        .catch((err) => { document.getElementById("reader").innerHTML = `<p class="text-sm text-amber-700 p-3">Não foi possível abrir a câmara: ${TechPC.escapeHtml(String(err))}</p>`; });
+      btnStop.onclick = () => { scanner.stop().then(() => btnStop.classList.add("hidden")).catch(() => {}); };
+    }
+  </script>
+</body>
+</html>
