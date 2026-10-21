@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TechPCInfo – Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="bg-slate-100">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="card w-full max-w-md p-8">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl brand-gradient text-white text-2xl font-bold mb-3">T</div>
+        <h1 class="text-2xl font-bold text-slate-800">TechPCInfo</h1>
+        <p class="text-slate-500 text-sm mt-1">Inventário local de equipamentos</p>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" id="email" required
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-600/40"
+            placeholder="admin@admin.pt" value="admin@admin.pt" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Palavra-passe</label>
+          <input type="password" id="password" required
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-600/40"
+            placeholder="••••••••" value="admin123" />
+        </div>
+
+        <div id="twofaBox" class="hidden">
+          <label class="block text-sm font-medium text-slate-700 mb-1">Código 2FA</label>
+          <input type="text" id="twofa" maxlength="6"
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-600/40"
+            placeholder="000000" />
+          <p id="twofaHint" class="text-xs text-amber-700 mt-1"></p>
+        </div>
+
+        <p id="error" class="text-red-600 text-sm hidden"></p>
+
+        <button type="submit" class="btn-primary w-full">Entrar</button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+        <p><strong>Contas demo:</strong></p>
+        <p>admin@admin.pt / admin123 (Admin)</p>
+        <p>tecnico@tech.pt / trab123 (Técnico)</p>
+        <p>maria@escola.pt / user123 (Utilizador)</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let pendingUser = null;
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const err = document.getElementById("error");
+      err.classList.add("hidden");
+
+      if (pendingUser) {
+        const code = document.getElementById("twofa").value.trim();
+        if (code !== pendingUser.twofa_code) {
+          err.textContent = "Código 2FA incorreto.";
+          err.classList.remove("hidden");
+          return;
+        }
+        delete pendingUser.twofa_code;
+        delete pendingUser.needs_2fa;
+        TechPC.setSession(pendingUser);
+        window.location.href = "/dashboard.html";
+        return;
+      }
+
+      try {
+        const data = await TechPC.apiPost("/login", {
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+        });
+        if (data.needs_2fa) {
+          pendingUser = data;
+          document.getElementById("twofaBox").classList.remove("hidden");
+          document.getElementById("twofaHint").textContent =
+            "Protótipo: o código gerado é " + data.twofa_code + " (em produção seria enviado por email).";
+          return;
+        }
+        TechPC.setSession(data);
+        window.location.href = "/dashboard.html";
+      } catch (ex) {
+        err.textContent = ex.message || "Erro no login";
+        err.classList.remove("hidden");
+      }
+    });
+
+    if (TechPC.getSession()) {
+      window.location.href = "/dashboard.html";
+    }
+  </script>
+</body>
+</html>
