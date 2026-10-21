@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TechPCInfo – Ficha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="bg-slate-100">
+  <nav class="brand-gradient text-white px-4 py-3 flex items-center justify-between">
+    <a href="/dashboard.html" class="font-bold text-lg">← TechPCInfo</a>
+    <span id="navUser" class="text-sm opacity-90"></span>
+  </nav>
+  <main class="max-w-3xl mx-auto p-4 md:p-6" id="content"><p class="text-slate-500">A carregar…</p></main>
+  <script src="/js/app.js"></script>
+  <script>
+    const session = TechPC.requireAuth();
+    if (!session) throw new Error("auth");
+    document.getElementById("navUser").textContent = session.display_name;
+    const params = new URLSearchParams(location.search);
+    let id = params.get("id");
+    if (!id && location.pathname.startsWith("/dispositivo/")) id = location.pathname.split("/").pop();
+    function field(label, value) {
+      return `<div><dt class="text-xs uppercase tracking-wide text-slate-400">${label}</dt><dd class="text-slate-800 font-medium">${TechPC.escapeHtml(value || "—")}</dd></div>`;
+    }
+    TechPC.apiGet("/equipment/" + encodeURIComponent(id)).then((pc) => {
+      const qrUrl = `${location.origin}/dispositivo/${pc.code}`;
+      document.getElementById("content").innerHTML = `
+        <div class="card p-6 mb-4">
+          <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-800">${TechPC.escapeHtml(pc.name)}</h1>
+              <p class="text-slate-500">${TechPC.escapeHtml(pc.code)} · ${TechPC.escapeHtml(pc.location || "")}</p>
+            </div>
+            ${TechPC.statusBadge(pc.status)}
+          </div>
+          <dl class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            ${field("Tipo", pc.type)}${field("Marca", pc.brand)}${field("Modelo", pc.model)}
+            ${field("Processador", pc.cpu)}${field("RAM", pc.ram)}${field("Armazenamento", pc.storage)}
+            ${field("Sistema operativo", pc.os)}${field("N.º série", pc.serial)}${field("MAC", pc.mac)}
+            ${field("IP", pc.ip)}${field("Aquisição", pc.acquisition_date)}${field("Notas", pc.notes)}
+          </dl>
+        </div>
+        <div class="card p-6 mb-4 flex flex-wrap items-center gap-6">
+          <div>
+            <h2 class="font-semibold text-slate-800 mb-2">Código QR</h2>
+            <p class="text-sm text-slate-500 mb-2">Abre esta ficha no telemóvel (mesma rede).</p>
+            <div id="qrcode" class="inline-block bg-white p-2 rounded-lg border"></div>
+          </div>
+          <div class="text-sm text-slate-600 break-all max-w-xs"><span class="text-xs text-slate-400">URL</span><br />${TechPC.escapeHtml(qrUrl)}</div>
+        </div>
+        <div class="card p-6">
+          <h2 class="font-semibold text-slate-800 mb-3">Histórico de manutenções</h2>
+          ${(pc.maintenances && pc.maintenances.length) ? `<ul class="space-y-3">${pc.maintenances.map((m) => `
+            <li class="border-l-4 border-teal-600 pl-3">
+              <div class="text-sm font-medium text-slate-800">${TechPC.escapeHtml(m.date)} · ${TechPC.escapeHtml(m.type)}</div>
+              <div class="text-sm text-slate-600">${TechPC.escapeHtml(m.description || "")}</div>
+              <div class="text-xs text-slate-400">${TechPC.escapeHtml(m.technician || "")}</div>
+            </li>`).join("")}</ul>` : `<p class="text-slate-500 text-sm">Sem registos de manutenção.</p>`}
+        </div>`;
+      new QRCode(document.getElementById("qrcode"), { text: qrUrl, width: 140, height: 140 });
+    }).catch((e) => {
+      document.getElementById("content").innerHTML = `<div class="card p-6 text-red-600">Erro: ${TechPC.escapeHtml(e.message)}</div>`;
+    });
+  </script>
+</body>
+</html>
