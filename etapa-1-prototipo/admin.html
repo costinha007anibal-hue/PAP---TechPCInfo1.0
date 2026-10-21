@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TechPCInfo – Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="bg-slate-100">
+  <nav class="brand-gradient text-white px-4 py-3 flex items-center justify-between">
+    <a href="/dashboard.html" class="font-bold text-lg">← TechPCInfo</a>
+    <span class="text-sm">Admin – Novo equipamento</span>
+  </nav>
+  <main class="max-w-xl mx-auto p-4 md:p-6">
+    <div class="card p-6">
+      <h1 class="text-xl font-bold text-slate-800 mb-4">Registar equipamento</h1>
+      <form id="form" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="text-sm text-slate-600">Nome *</label>
+            <input name="name" required class="w-full border rounded-xl px-3 py-2" placeholder="Sala X – PC Y" />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Localização</label>
+            <input name="location" class="w-full border rounded-xl px-3 py-2" />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Tipo</label>
+            <select name="type" class="w-full border rounded-xl px-3 py-2">
+              <option>Desktop</option><option>Portátil</option><option>All-in-One</option><option>Outro</option>
+            </select>
+          </div>
+          <div><label class="text-sm text-slate-600">Marca</label><input name="brand" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">Modelo</label><input name="model" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">CPU</label><input name="cpu" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">RAM</label><input name="ram" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">Disco</label><input name="storage" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">SO</label><input name="os" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="text-sm text-slate-600">IP</label><input name="ip" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div>
+            <label class="text-sm text-slate-600">Estado</label>
+            <select name="status" class="w-full border rounded-xl px-3 py-2">
+              <option value="ativo">ativo</option><option value="manutencao">manutencao</option><option value="inativo">inativo</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="text-sm text-slate-600">Notas</label>
+            <textarea name="notes" rows="2" class="w-full border rounded-xl px-3 py-2"></textarea>
+          </div>
+        </div>
+        <p id="msg" class="text-sm hidden"></p>
+        <button type="submit" class="btn-primary w-full">Guardar (ID automático)</button>
+      </form>
+    </div>
+  </main>
+  <script src="/js/app.js"></script>
+  <script>
+    const session = TechPC.requireAuth(["admin"]);
+    if (!session) throw new Error("auth");
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(e.target).entries());
+      const msg = document.getElementById("msg");
+      try {
+        const pc = await TechPC.apiPost("/equipment", body);
+        msg.className = "text-sm text-emerald-700";
+        msg.textContent = "Criado: " + pc.code + " — a redirecionar…";
+        msg.classList.remove("hidden");
+        setTimeout(() => { location.href = "/pc-detail.html?id=" + encodeURIComponent(pc.code); }, 800);
+      } catch (ex) {
+        msg.className = "text-sm text-red-600";
+        msg.textContent = ex.message;
+        msg.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
