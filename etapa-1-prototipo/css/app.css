@@ -1,0 +1,53 @@
+/* TechPCInfo – estilos base do protótipo */
+:root {
+  --brand: #0f766e;
+  --brand-dark: #115e59;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #0f766e 0%, #0e7490 50%, #1e3a5f 100%);
+}
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08), 0 4px 12px rgb(0 0 0 / 0.04);
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: white;
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: background 0.15s;
+}
+.btn-primary:hover {
+  background: var(--brand-dark);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: background 0.15s;
+}
+.btn-ghost:hover {
+  background: #f8fafc;
+}
+
+.camera-only-mobile {
+  display: none;
+}
+body.is-mobile .camera-only-mobile {
+  display: block;
+}
+body:not(.is-mobile) .camera-only-mobile {
+  display: none !important;
+}
