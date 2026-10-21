@@ -1,6 +1,6 @@
 # TechPCInfo – PAP 1.0
 
-**Sistema local de inventário de equipamentos** (PCs e dispositivos) com códigos QR, manutenções, perfis de utilizador e base de dados SQLite.
+**Sistema local de inventário de equipamentos** (PCs e dispositivos) com códigos QR, manutenções, perfis de utilizador e base de dados.
 
 Projeto de **Prova de Aptidão Profissional (PAP)**  
 Curso: Técnico de Gestão de Equipamentos Informáticos – 3.º ano  
@@ -18,41 +18,36 @@ Repositório: [PAP---TechPCInfo1.0](https://github.com/costinha007anibal-hue/PAP
 
 | Etapa | Nome | Descrição | Data |
 |-------|------|-----------|------|
-| **0** | Análise inicial | Análise dos documentos da PAP e documentação técnica; regras de trabalho; resumo do projeto | 2026-10-21 |
-| 1 | (próxima) | Estrutura inicial do código (server.py, páginas HTML, pastas) | — |
+| **0** | Análise inicial | Análise dos documentos da PAP e documentação técnica; regras de trabalho | 2026-10-21 |
+| **1** | Protótipo / exemplo da app | App funcional de demonstração: login, dashboard, ficha+QR, scan (câmara só em mobile), admin; ideias da PAP incorporadas | 2026-10-22 |
 
-Cada commit e pasta de documentação usa numeração de etapa para identificar claramente o que foi alterado.
-
----
-
-## Documentação da Etapa 0
-
-Na pasta [`docs/etapa-0-analise/`](docs/etapa-0-analise/):
-
-- `00_Analise_Completa_Projeto_TechPCInfo.md` – análise completa do projeto e regras
-- `PAP_Anteprojeto_texto.txt` – texto extraído do anteprojeto da PAP
-- `TechPCInfo_Documentacao_Tecnica_texto.txt` – texto extraído da documentação técnica
+Cada commit e pasta usa numeração de etapa.
 
 ---
 
-## Stack prevista
+## Protótipo (Etapa 1)
 
-- **Frontend:** HTML5, Tailwind CSS, JavaScript (vanilla)
-- **Backend:** Python 3 (`server.py`)
-- **Base de dados:** SQLite
-- **Extras:** QR Codes, câmara no browser, temas, relatórios PDF/DOC
-
----
-
-## Como executar (quando o código estiver disponível)
+Pasta [`etapa-1-prototipo/`](etapa-1-prototipo/):
 
 ```bash
+cd etapa-1-prototipo
 python server.py
 # http://localhost:5500
-# Na rede: http://IP-DO-PC:5500
-# Com HTTPS (câmara no telemóvel): python server.py --https
 ```
+
+Contas demo: `admin@admin.pt` / `admin123` · `tecnico@tech.pt` / `trab123` · `maria@escola.pt` / `user123`
+
+**Ideias já aplicadas:**
+- Câmara QR **apenas** em smartphone/tablet (não aparece em PC desktop)
+- SQLite no protótipo; schema pronto para PostgreSQL
+- Logins e equipamentos de exemplo pré-carregados
 
 ---
 
-*Projeto em desenvolvimento contínuo. Todas as alterações são registadas por etapas numeradas.*
+## Documentação Etapa 0
+
+[`docs/etapa-0-analise/`](docs/etapa-0-analise/)
+
+---
+
+*Projeto em desenvolvimento contínuo. Alterações registadas por etapas numeradas.*
