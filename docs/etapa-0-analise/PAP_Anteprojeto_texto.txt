@@ -1,0 +1,125 @@
+Identificação do/a Aluno/a
+Ano:
+3º
+Curso:
+Técnico de Gestão de Equip. Informáticos
+Número:
+8610
+Nome:
+Martim Aníbal Costa Ferreira
+Ano Letivo:
+2026/2027
+
+Realização:
+Individual:
+
+Grupo:*
+X
+
+* Membro do Grupo:
+Número:
+8613
+
+Nome:
+Rodrigo Loureiro
+
+TÍTULO DO PROJETO
+(Tema do projeto, motivo da escolha e breve descrição indicando em que consiste)
+
+O nome do nosso projeto é "TechPCInfo", o motivo da escolha foi o intuito de facilitar a gestão das máquinas e esse projeto consiste em criar um web site onde nele se consiste em Organizar, enumerar e analisar os PCs ou outros meios eletrônicos do departamento Escolar ou para uma empresa de informática.
+
+OBJETIVOS DO PROJETO
+(Definição por tópicos das etapas do projeto)
+
+O projeto consiste principalmente fazer o gerenciamento mais simples através de um QrCode onde posso visualizar e adquirir informações sobre aquele dispositivo em específico podendo assim encontrar ou descobrir o que tem ou o que se passa com o equipamento, também terá uma parte de criação de relatórios sobre a gestão ou concerto dos equipamentos que pode ser implementado junto com o QrCode, aparecerá como espécie de histórico de Gestões que já foram feitas naqueles dispositivos.
+Também será implementado uma função de vários utilizadores como exemplo Admin (Host do Site); Empregados (Podem Criar relatórios e gerir os dispositivos) e Clientes (Podem somente Visualizar).
+
+METODOLOGIAS / ESTRATÉGIAS
+(Indicação das etapas sequenciais na resolução do projeto)
+
+1. Levantamento de Requisitos
+    - Dificuldade em saber que PC é qual na escola/empresa (sala, estado, peças).
+    - Necessidade de histórico do que já foi feito em cada máquina (manutenções, avarias).
+    - Consulta rápida no local, de preferência com telemóvel e QR Code.
+    - Diferentes níveis de acesso:
+        · Admin - gere tudo (criar, editar, apagar/recuperar equipamentos, inventário).
+        · Trabalhador/Técnico - consulta, regista manutenções, usa scan/pesquisa.
+        · Utilizador/Estudante (cliente) - sobretudo vê informação, sem editar nem apagar.
+    - Requisitos extra definidos ao longo do projeto: fotos do equipamento, relatórios para portefólio (PDF/DOC), tema claro/escuro, wallpapers, assistente de ajuda (Tec), IDs automáticos, IP fixo.
+2. Design e Modelação
+Base de dados (modelo de informação):
+    - Equipamentos: ID (ex.: PC-0001), nome, sala, tipo, marca, modelo, CPU, RAM, disco, SO, IP, estado, observações, imagem(ns).
+    - Manutenções: data, tipo (preventiva/corretiva), descrição, associação ao equipamento (e técnico, quando aplicável).
+    - Utilizadores: conta, email/domínio (para papel), palavra-passe, nome a exibir, foto/avatar, 2FA opcional.
+    - Eliminados: equipamentos removidos com possibilidade de recuperar ou apagar de vez.
+Interface (protótipo das páginas):
+    - Login e registo de conta
+    - Dashboard (lista + estatísticas + pesquisa)
+    - Ficha do equipamento (specs, QR, manutenções, download de relatório)
+    - Scan / busca (câmara QR + pesquisa)
+    - Admin (criar/editar/eliminar/recuperar)
+    - Definições (perfil, wallpaper, tema)
+3. Desenvolvimento
+    - Frontend: HTML, CSS (incl. Tailwind), JavaScript - páginas, animações, painéis, assistente Tec.
+    - Backend: Python com Flask - API, sessões, ficheiros, base de dados.
+    - Base de dados: SQLite (inventário partilhado na rede local).
+    - QR Codes: geração por equipamento; conteúdo = ligação à ficha desse PC.
+    - Câmara: leitura de QR no browser.
+    - Permissões: controlo do que cada papel pode ver e fazer.
+    - Relatórios: exportação PDF (impressão/guardar) e DOC para portefólio físico.
+    - Extras de usabilidade: temas, wallpapers (incl. TechPCInfo claro/escuro), perfil com foto, ajudas por página.
+4. Testes e Validação
+    - Login com contas diferentes e respetivas permissões.
+    - Criar equipamento com foto e ID automático; editar sem alterar o ID; IP imutável.
+    - Eliminar → zona de eliminados → recuperar ou apagar definitivamente.
+    - Abrir ficha, ver QR, registar manutenção.
+    - Digitalizar QR e confirmar que abre o equipamento certo.
+    - Gerar relatório PDF/DOC e validar conteúdo (ficha + manutenções).
+    - Testar noutro PC/telemóvel na mesma rede (e HTTPS/ngrok se for preciso para a câmara no telemóvel).
+5. Documentação
+    - Anteprojeto da PAP (este documento).
+    - Relatório final: objetivos, metodologias, desenvolvimento, testes, conclusões.
+    - Preparação da apresentação e da demonstração ao vivo do site.
+    - Organização de capturas de ecrã e, se possível, etiquetas QR de exemplo.
+
+RECURSOS
+(Materiais a utilizar, recursos físicos, software e humanos)
+Hardware / Físicos
+Recurso
+Para que serve no projeto
+Computador(es) de desenvolvimento
+Programar, correr o servidor local (server.py), testar o site.
+PC "servidor" na rede
+Partilhar o TechPCInfo com outros dispositivos na LAN.
+Smartphone
+Ler QR Codes; testar a interface móvel e a câmara.
+Impressora
+Etiquetas com QR; imprimir relatórios para o portefólio físico.
+Rede local (cabo/Wi-Fi)
+Acesso ao site a partir de outros equipamentos.
+
+Software
+Recurso
+Utilização
+HTML / CSS / JavaScript
+Páginas, estilo, interatividade (dashboard, QR, câmara, Tec).
+Python + Flask
+Servidor local, API, utilizadores, gravação de dados e imagens.
+SQLite
+Base de dados do inventário e das contas.
+Browser (Chrome, Edge, Firefox?)
+Testes e utilização do sistema.
+Biblioteca QR no browser
+Gerar o código QR de cada equipamento.
+Sistema operativo
+Windows (ou outro) no PC de desenvolvimento/servidor.
+
+2. Editores de código / IDEs
+    - Visual Studio Code (VS Code): edição de HTML, CSS, JS e Python; terminal para correr o servidor (DURANTE TESTES); gestão de ficheiros do projeto.
+
+3. Ferramentas de IA para desenvolvimento
+    - Grok, Claude, ChatGPT (e/ou GitHub Copilot): apoio a escrever e corrigir código, estruturar páginas, resolver erros e redigir textos da PAP.
+    - Nota importante para a PAP: a IA foi ferramenta de apoio; as decisões, testes e responsabilidade do trabalho são do grupo.
+4. Recursos humanos
+    - Martim Aníbal Costa Ferreira e Rodrigo Loureiro - desenvolvimento e documentação do projeto.
+    - Docentes / direção pedagógica - acompanhamento e validação no âmbito da PAP.

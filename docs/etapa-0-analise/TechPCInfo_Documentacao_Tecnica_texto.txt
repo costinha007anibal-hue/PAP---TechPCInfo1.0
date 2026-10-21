@@ -1,0 +1,140 @@
+DOCUMENTAÇÃO TÉCNICA
+Sistema Local de Inventário de Equipamentos
+
+TechPCInfo
+Gestão de Dispositivos Empresariais
+
+Sistema web local para inventário, manutenção e consulta de computadores e
+equipamentos em redes escolares ou empresariais, com códigos QR, perfis de
+utilizador, base de dados SQLite e acesso multi-dispositivo.
+
+Tipo          Aplicação web local (frontend + servidor Python)
+Âmbito        Escolas, empresas e redes internas
+Stack         HTML, Tailwind CSS, JavaScript, Python, SQLite
+Acesso        PC e telemóvel na mesma rede Wi-Fi / LAN
+
+Projeto escolar / empresarial · Rede local · 2025–2026
+
+1. Introdução e objetivos
+O TechPCInfo nasceu da necessidade de consultar e gerir computadores numa rede (por exemplo, uma
+rede escolar ou uma empresa de dimensão média) de forma simples, centralizada e acessível tanto em
+computador como em telemóvel.
+
+Cada equipamento pode ter um código QR físico. Ao digitalizá-lo, o utilizador abre a ficha completa
+desse dispositivo — especificações, fotografia, histórico de manutenções e estado atual — em vez de ver
+apenas um identificador técnico.
+
+Objetivos principais:
+• Inventariar PCs e componentes com especificações e imagens;
+• Registar manutenções com data, tipo e técnico responsável;
+• Permitir consulta rápida por pesquisa ou QR Code;
+• Separar permissões por perfil (Admin, Técnico, Utilizador);
+• Funcionar em rede local, com dados partilhados entre dispositivos;
+• Oferecer personalização visual (temas e wallpapers).
+
+2. Funcionalidades do sistema
+2.1 Inventário de equipamentos
+Criação, edição e remoção de registos de PC (apenas Admin). Cada ficha pode incluir nome, localização,
+tipo, marca, modelo, processador, RAM, armazenamento, sistema operativo, número de série, MAC, IP,
+data de aquisição, estado e observações. É obrigatória pelo menos uma fotografia na criação. As fotos
+podem ser tiradas com câmara ao vivo (pré-visualização tipo máquina fotográfica) ou escolhidas da
+galeria/ficheiros.
+
+2.2 Códigos QR
+Cada equipamento gera um QR Code com a URL de acesso direto à sua ficha (rota /dispositivo/ID). No
+telemóvel, com o servidor na mesma rede, a digitalização abre a página desse dispositivo. É possível
+definir a URL base (IP do servidor) para os QR funcionarem fora do localhost.
+
+2.3 Manutenções
+Técnicos e administradores registam intervenções (preventiva ou corretiva) com data, descrição e técnico.
+O histórico fica na ficha de detalhe do equipamento.
+
+2.4 Autenticação e perfis
+Registo em dois passos: dados do perfil (foto, nome a exibir, email, palavra-passe, 2FA) e página de
+confirmação com termos de uso, acesso à câmara, proteção de dados e informação sobre verificação em
+duas etapas. O 2FA gera um código aleatório em cada login (preparado para envio por email no futuro).
+
+2.5 Papéis e permissões
+
+Papel                   Como obter                 Permissões
+Administrador           Conta única                CRUD de PCs, gestão de contas, inventário
+                        (admin@admin.pt)           completo
+Técnico                 Email @tech.pt             Consulta + registo de manutenções
+Utilizador              Outros emails              Apenas visualização
+
+Apenas uma conta de administrador é permitida. Novos registos não podem criar outro admin.
+
+2.6 Definições e gestão de contas
+Todos podem alterar nome, foto, palavra-passe e 2FA, e terminar sessão. O administrador gere contas:
+papéis, 2FA e eliminação (exceto o único admin).
+
+2.7 Aparência e câmara
+Templates claro/escuro e wallpapers personalizados. Leitura de QR e captura de fotos com câmara ao
+vivo. Em http://IP a câmara pode estar bloqueada; recomenda-se python server.py --https no telemóvel.
+
+3. Arquitetura técnica
+Interface web estática + servidor Python com API REST e SQLite (data/inventory.db), partilhada por todos
+os clientes na rede.
+
+Camada                  Tecnologias / conteúdo
+Frontend                HTML5, Tailwind CSS (CDN), JavaScript (vanilla)
+Backend                 Python 3 — server.py (ThreadingHTTPServer + API)
+Base de dados           SQLite — utilizadores, PCs, manutenções, logs, wallpapers
+Ficheiros               assets/equipment, profiles, wallpapers; pasta reports/
+CDN                     qrcodejs, html5-qrcode
+
+Sem servidor, o frontend pode usar localStorage (dados só nesse browser). Com server.py, PC e
+telemóvel partilham a mesma base de dados.
+
+4. Estrutura do projeto
+pc-inventory/
+  server.py                servidor HTTP/HTTPS + API + SQLite
+  index.html               login (+ 2FA)
+  register.html            criação de perfil (passo 1)
+  terms.html               termos de uso, câmara, dados (passo 2)
+  dashboard.html           listagem de equipamentos
+  pc-detail.html           ficha + QR Code
+  admin.html               gestão de inventário (Admin)
+  scan.html                pesquisa e leitura de QR
+  settings.html            perfil, sessão, gestão de contas
+  js/   css/     assets/   data/inventory.db     reports/
+
+5. Como executar
+Requisitos: Python 3; browser moderno (Chrome, Edge, Firefox).
+
+Na pasta do projeto:
+python server.py
+Neste PC: http://localhost:5500
+Na rede: http://IP-DO-PC:5500
+Câmara no telemóvel (recomendado):
+python server.py --https
+Abrir https://IP-DO-PC:5500 e aceitar o certificado local.
+
+Contas de demonstração
+Conta                            Password              Notas
+admin@admin.pt                   admin123            Admin + 2FA (código gerado no login)
+tecnico@tech.pt                  trab123             Técnico + 2FA
+maria@escola.pt                  user123             Só consulta
+
+6. Fluxos principais
+Registo: perfil → termos (uso, câmara, dados) → conta técnico ou utilizador.
+QR: servidor ativo → URL base no detalhe → QR no equipamento → ficha no telemóvel.
+Novo PC (Admin): formulário → foto (câmara ao vivo ou ficheiro) → gravação na BD e em
+assets/equipment/.
+
+7. Segurança e limitações
+Destinado a rede local de confiança. Em demonstração as passwords estão em texto simples — em
+produção devem usar-se hashes e HTTPS. O 2FA por email depende de SMTP futuro. Limitações: sem
+cloud; certificado HTTPS auto-assinado; CDNs externas para algumas bibliotecas.
+
+8. Possíveis evoluções
+• Email real (SMTP) para códigos 2FA;
+• Exportação de relatórios PDF/Excel;
+• Hashes seguros e sessões no servidor;
+• VPN ou publicação controlada para acesso remoto;
+• PWA para atalho no telemóvel;
+• Inventário de outros equipamentos (impressoras, switches, etc.).
+
+TechPCInfo — documentação do modelo pré-pronto do sistema de inventário local. O código e a
+estrutura podem ser adaptados às necessidades da escola ou da empresa.
+Fim do documento.
